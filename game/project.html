@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Basic Platformer</title>
+</head>
+<body>
+
+<h2>Coins: <span id="coinCount">0</span> / 3</h2>
+<div id="POSITIONDISPLAY"></div>
+<canvas id="game" width="1870" height="850" style="border:solid 1px;"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const platform_img = new Image(); // Create a new Image object
+platform_img.src = "platform.png"; // Start loading the image
+const coinText = document.getElementById("coinCount");
+
+let keys = {};
+let coinsCollected = 0;
+var right=true; //platform 4
+var teleport_used=false;
+
+//PLAYER
+const player = {
+  x: 380,
+  y: 420,
+  width: 30,
+  height: 30,
+  vx: 0,
+  vy: 0,
+  speed: 4,
+  jump: 10,
+  grounded: false
+};
+
+//PLATFORMS
+const platforms = [
+  { x: -100, y: 800, width: 2000, height: 50 },//Bottom platform
+  { x: 300, y: 600 , width: 120, height: 20},//2nd line
+  { x: 500, y: 600 , width: 100, height: 20},
+  { x: 700, y: 600 , width: 100, height: 20},
+  { x: 900, y: 600 , width: 200, height: 20},
+  { x: 1100, y: 600 , width: 160, height: 20, moving_y:5, final_y:1000, started_moving:false, stopped_moving:false},
+  { x: 1250, y: 600 , width: 150, height: 20},
+  { x: 1570, y: 600 , width: 350, height: 20},
+  { x: 1580, y: 500 , width: 120, height: 20},//y=500 3rd line
+  { x: 1330, y: 450 , width: 120, height: 20},
+  { x: 1070, y: 450 , width: 130, height: 20},
+  { x: 850,  y: 450 , width: 120, height: 20},//y=450 4rd line
+  { x: 620,  y: 450 , width: 150, height: 20},
+  { x: 400,  y: 450 , width: 120, height: 20},
+  { x: 0,    y: 450 , width: 250, height: 20},//y=320 5th line
+  { x:150,   y: 330 , width: 120, height: 20},                                                                                                                
+  { x: 400 , y: 280 , width: 120, height: 20},
+  { x: 640 , y: 280 , width: 120, height: 20},
+  { x: 870 , y: 280 , width: 1000, height: 20},
+  { x: 1350 , y: 160 , width: 120, height: 20},
+  { x: 1600 , y: 200 , width: 120, height: 20},//y=230 6th line
+  { x: 1100 , y: 160 , width: 120, height: 20},//y=190 7th line
+  { x: 880 , y: 160 , width: 120, height: 20},
+  { x: 660 , y: 160 , width: 120, height: 20},
+  {x: 420, y: 160 , width: 120, height: 20},
+  {x: 190 , y: 160 , width: 120, height: 20},
+  {x: 0 , y: 160 , width: 120, height: 20},
+  {x: 150 , y: 50 , width: 120, height: 20},                             
+  { x: 1860, y: 0, width: 10, height: 1000 },
+  { x: 150, y: 700, width: 120, height: 20 }  //y=700 1st line  
+
+];
+
+//COINS
+const coins = [
+  { x: 180, y: 250, r: 8, collected: false },
+  { x: 380, y: 190, r: 8, collected: false },
+  { x: 500, y: 340, r: 8, collected: false }
+];
+
+const gravity = 0.5;
+
+//INPUT
+document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keyup", e => keys[e.key] = false);
+
+//GAME LOOP
+function update() {
+  // Movement
+  if (keys["ArrowLeft"]) player.vx = -player.speed;
+  else if (keys["ArrowRight"]) player.vx = player.speed;
+  else player.vx = 0;
+
+  if (keys["ArrowUp"] && player.grounded) {
+    player.vy = -player.jump;
+    player.grounded = false;
+  }
+  //Display position:
+  document.getElementById("POSITIONDISPLAY").innerHTML="x: "+player.x+" ; y: "+player.y;
+
+
+
+  // Gravity
+  player.vy += gravity;
+
+  // Apply movement
+  player.x += player.vx;
+  player.y += player.vy;
+
+  player.grounded = false;
+   
+  // Platform collision
+  platforms.forEach(p => {
+    if (
+      player.x < p.x + p.width &&
+      player.x + player.width > p.x &&
+      player.y < p.y + p.height &&
+      player.y + player.height > p.y
+    ) {
+      // Land on top
+      if (player.vy > 0) {
+        player.y = p.y - player.height;
+        player.vy = 0;
+        player.grounded = true;
+      }
+    }
+  });
+  
+  // Platform collision from below
+  platforms.forEach(p => {
+    if (
+      player.x < p.x + p.width &&
+      player.x + player.width > p.x &&
+      Math.abs(player.y - (p.y + p.height))<6
+    ) {
+      // touch bottom
+      console.log("hii");
+      if (1==1) {
+        player.y = p.y + p.height+6;
+        player.vy = 0;
+        player.grounded = false;
+      }
+    }
+  });
+
+
+  // Coin collision
+  coins.forEach(c => {
+    if (!c.collected) {
+      const dx = player.x + player.width / 2 - c.x;
+      const dy = player.y + player.height / 2 - c.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < c.r + 15) {
+        c.collected = true;
+        coinsCollected++;
+        coinText.textContent = coinsCollected;
+      }
+    }
+  });
+  //platform movement
+  
+  if (right){
+    if(platforms[1].x<300){
+      platforms[1].x+=4;
+    }
+    else{
+      right=false;
+    }
+  }
+  else{
+    if (platforms[1].x>0) {
+      platforms[1].x-=4;
+    }
+    else{
+      right=true;
+    }
+  }
+//player trigger platform
+var d=platforms[5];
+  if (player.x>1040 && player.x<1140 && player.y>400 && player.y<580 && d.started_moving==false) {
+   console.log("trigger!")
+    d.started_moving=true
+  }
+  if(d.started_moving==true && d.y<d.final_y){
+          d.y+=d.moving_y;
+  }
+
+  //teleporter
+  if (player.x>240 && player.x<320 && player.y>380 && player.y<450 && teleport_used==false){
+    player.x=30;
+    player.y=770;
+    teleport_used=true;
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Player
+  ctx.fillStyle = "cyan";
+  ctx.fillRect(player.x, player.y, player.width, player.height);
+
+  // Platforms
+  ctx.fillStyle = "green";
+  platforms.forEach(p => {
+    //ctx.fillRect(p.x, p.y, p.width, p.height);
+    ctx.drawImage(platform_img,p.x, p.y, p.width, p.height);
+  });
+
+  // Coins
+  ctx.fillStyle = "gold";
+  coins.forEach(c => {
+    if (!c.collected) {
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+
+draw()//to delete
+</script>
+
+</body>
+</html>
