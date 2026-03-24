@@ -2,7 +2,6 @@
 <html>
 <head>
   <title>Basic Platformer</title>
-  <link rel="stylesheet" type="text/css" href="forstart.css">
 </head>
 <body>
 
@@ -26,41 +25,14 @@ var teleport_used=false;
 const player = {
   x: 380,
   y: 420,
-  width: 35,
-  height: 55,
+  width: 30,
+  height: 30,
   vx: 0,
   vy: 0,
   speed: 4,
   jump: 10,
-  grounded: false,
-  frameX: 0,
-  frameY: 0,
-  frameTick: 0
+  grounded: false
 };
-//turtle(enemy)
-const turtles = [
-  { x:250,  y:600, width: 100, height: 20, min_x:200, max_x:300, is_right:true, frameX:0, frameY:0, frameTick:0},
-  { x:250,  y:400, width: 100, height: 20, min_x:200, max_x:300, is_right:true, frameX:0, frameY:0, frameTick:0},
-]
-
-
-  const sprite = new Image();
-  sprite.src = "sprite.png";
-  const spriteTUR  = new Image();
-  spriteTUR.src = "turtle sprite.png";
-
-
-  // SPRITE SETTINGS
-  const SPRITE_WIDTH = 472;   // width of ONE frame
-  const SPRITE_HEIGHT = 650;  // height of ONE frame
-  const FRAMES_PER_ROW = 6;
-
-  const SPRITE_WIDTHTUR = 525;   // width of ONE frame
-  const SPRITE_HEIGHTTUR = 375;  // height of ONE frame
-  const FRAMES_PER_ROWTUR = 2;
-
-
-
 
 //PLATFORMS
 const platforms = [
@@ -93,7 +65,7 @@ const platforms = [
   {x: 0 , y: 160 , width: 120, height: 20},
   {x: 150 , y: 50 , width: 120, height: 20},                             
   { x: 1860, y: 0, width: 10, height: 1000 },
- { x: 150, y: 700, width: 120, height: 20 } //1istline  
+  { x: 150, y: 700, width: 120, height: 20 }  //y=700 1st line  
 
 ];
 
@@ -112,40 +84,15 @@ document.addEventListener("keyup", e => keys[e.key] = false);
 
 //GAME LOOP
 function update() {
-  let moving = false;
-
   // Movement
-  if (keys["ArrowLeft"]) {
-    player.vx = -player.speed;
-     player.frameY = 0; // left row
-    moving = true;
-  }
-  else if (keys["ArrowRight"]){
-    player.vx = player.speed;
-     player.frameY = 1; // right row
-    moving = true;
-  }
-  else {
-    player.vx = 0;
-  }
+  if (keys["ArrowLeft"]) player.vx = -player.speed;
+  else if (keys["ArrowRight"]) player.vx = player.speed;
+  else player.vx = 0;
 
   if (keys["ArrowUp"] && player.grounded) {
     player.vy = -player.jump;
     player.grounded = false;
   }
-   if (moving) {
-    player.frameTick++;
-    if (player.frameTick > 10) {
-      player.frameX = (player.frameX + 1) % FRAMES_PER_ROW;
-      player.frameTick = 0;
-    }
-  } else {
-    player.frameX = 0; // idle frame
-  }
-
-
-
-
   //Display position:
   document.getElementById("POSITIONDISPLAY").innerHTML="x: "+player.x+" ; y: "+player.y;
 
@@ -228,7 +175,7 @@ function update() {
   }
 //player trigger platform
 var d=platforms[5];
-  if (player.x>1040 && player.x<1140  && player.y>400 && player.y<490 && d.started_moving==false) {
+  if (player.x>1040 && player.x<1140 && player.y>400 && player.y<580 && d.started_moving==false) {
    console.log("trigger!")
     d.started_moving=true
   }
@@ -248,21 +195,8 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Player
-  //ctx.fillStyle = "cyan";
-  //ctx.fillRect(player.x, player.y, player.width, player.height);
-  ctx.drawImage(
-    sprite,
-    player.frameX * SPRITE_WIDTH,
-    player.frameY * SPRITE_HEIGHT,
-    SPRITE_WIDTH,
-    SPRITE_HEIGHT,
-    player.x,
-    player.y,
-    player.width,
-    player.height
-  );
-
-
+  ctx.fillStyle = "cyan";
+  ctx.fillRect(player.x, player.y, player.width, player.height);
 
   // Platforms
   ctx.fillStyle = "green";
@@ -279,11 +213,6 @@ function draw() {
       ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
       ctx.fill();
     }
-  });
-  //turtle
-  turtles.forEach(p => {
-    //ctx.fillRect(p.x, p.y, p.width, p.height);
-    ctx.drawImage(spriteTUR,p.x, p.y, p.width, p.height);
   });
 }
 
