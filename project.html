@@ -253,9 +253,23 @@ function update() {
   }
    });
 
-//turtle(killing)
+  // turltlecollision
+  turtles.forEach(t => {
+    if (
+      turtles.x < t.x + t.width &&
+      turtles.x + turtles.width > t.x &&
+      turtles.y < t.y + t.height &&
+      turtles.y + turtles.height > t.y
+    ) {
+  // Land on top
+      if (turtles.vy > 0) {
+        player.y = p.y - player.height;
+        player.vy = 0;
+        player.grounded = true;
+      }
+    }
+  });
 
-  if (turtles.x )
 //player trigger platform
 var d=platforms[5];
   if (player.x>1040 && player.x<1140  && player.y>400 && player.y<490 && d.started_moving==false) {
