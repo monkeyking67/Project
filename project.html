@@ -2,12 +2,13 @@
 <html>
 <head>
   <title>Basic Platformer</title>
+  <link rel="stylesheet" type="text/css" href="forstart.css">
 </head>
 <body>
 
 <h2>Coins: <span id="coinCount">0</span> / 3</h2>
 <div id="POSITIONDISPLAY"></div>
-<canvas id="game" width="1870" height="850" style="border:solid 1px;"></canvas>
+<canvas id="game" width="1890" height="850" style="border:solid 1px;"></canvas>
 
 <script>
 const canvas = document.getElementById("game");
@@ -23,20 +24,48 @@ var teleport_used=false;
 
 //PLAYER
 const player = {
-  x: 380,
-  y: 420,
-  width: 30,
-  height: 30,
+  x: 900,
+  y: 200,
+  width: 35,
+  height: 55,
   vx: 0,
   vy: 0,
   speed: 4,
   jump: 10,
-  grounded: false
+  grounded: false,
+  frameX: 0,
+  frameY: 0,
+  frameTick: 0
 };
+//turtle(enemy)
+const turtles = [
+  { x:300,  y:400, width: 100, height: 60, min_x:200, max_x:500, is_right:true, frameX:0, frameY:0, frameTick:0},
+  { x:400,  y:250, width: 100, height: 60, min_x:20, max_x:500, is_right:true, frameX:0, frameY:0, frameTick:0},
+  { x:800,  y:300, width: 50, height: 30, min_x:20, max_x:500, is_right:false, frameX:0, frameY:0, frameTick:0},
+]
+
+
+  const sprite = new Image();
+  sprite.src = "sprite.png";
+  const spriteTUR  = new Image();
+  spriteTUR.src = "turtle sprite.png";
+
+
+  // SPRITE SETTINGS
+  const SPRITE_WIDTH = 472;   // width of ONE frame
+  const SPRITE_HEIGHT = 650;  // height of ONE frame
+  const FRAMES_PER_ROW = 6;
+
+  const SPRITE_WIDTHTUR = 525;   // width of ONE frame
+  const SPRITE_HEIGHTTUR = 375;  // height of ONE frame
+  const FRAMES_PER_ROWTUR = 2;
+
+
+
 
 //PLATFORMS
 const platforms = [
-  { x: -100, y: 800, width: 2000, height: 50 },//Bottom platform
+  { x: -100, y: 800, width: 2000, height: 10 },//Bottom platform
   { x: 300, y: 600 , width: 120, height: 20},//2nd line
   { x: 500, y: 600 , width: 100, height: 20},
   { x: 700, y: 600 , width: 100, height: 20},
@@ -57,15 +86,13 @@ const platforms = [
   { x: 870 , y: 280 , width: 1000, height: 20},
   { x: 1350 , y: 160 , width: 120, height: 20},
   { x: 1600 , y: 200 , width: 120, height: 20},//y=230 6th line
-  { x: 1100 , y: 160 , width: 120, height: 20},//y=190 7th line
-  { x: 880 , y: 160 , width: 120, height: 20},
-  { x: 660 , y: 160 , width: 120, height: 20},
-  {x: 420, y: 160 , width: 120, height: 20},
-  {x: 190 , y: 160 , width: 120, height: 20},
-  {x: 0 , y: 160 , width: 120, height: 20},
-  {x: 150 , y: 50 , width: 120, height: 20},                             
-  { x: 1860, y: 0, width: 10, height: 1000 },
-  { x: 150, y: 700, width: 120, height: 20 }  //y=700 1st line  
+  { x: 1100 , y: 100 , width: 120, height: 20},//y=190 7th line
+  { x: 880 , y: 100 , width: 120, height: 20},
+  { x: 660 , y: 100 , width: 120, height: 20},
+  {x: 420, y: 100 , width: 120, height: 20},
+  {x: 190 , y: 100 , width: 120, height: 20},
+  {x: 0 , y: 100 , width: 120, height: 20},                          
+ { x: 150, y: 700, width: 120, height: 20 } //1istline  
 
 ];
 
@@ -84,15 +111,39 @@ document.addEventListener("keyup", e => keys[e.key] = false);
 
 //GAME LOOP
 function update() {
+  let moving = false;
+
   // Movement
-  if (keys["ArrowLeft"]) player.vx = -player.speed;
-  else if (keys["ArrowRight"]) player.vx = player.speed;
-  else player.vx = 0;
+  if (keys["ArrowLeft"]) {
+    player.vx = -player.speed;
+     player.frameY = 0; // left row
+    moving = true;
+  }
+  else if (keys["ArrowRight"]){
+    player.vx = player.speed;
+     player.frameY = 1; // right row
+    moving = true;
+  }
+  else {
+    player.vx = 0;
+  }
 
   if (keys["ArrowUp"] && player.grounded) {
     player.vy = -player.jump;
     player.grounded = false;
   }
+   if (moving) {
+    player.frameTick++;
+    if (player.frameTick > 10) {
+      player.frameX = (player.frameX + 1) % FRAMES_PER_ROW;
+      player.frameTick = 0;
+    }
+  } else {
+    player.frameX = 0; // idle frame
+  }
+ 
+
+
   //Display position:
   document.getElementById("POSITIONDISPLAY").innerHTML="x: "+player.x+" ; y: "+player.y;
 
@@ -173,9 +224,41 @@ function update() {
       right=true;
     }
   }
+  //tutle movement
+   turtles.forEach(t => {
+
+  if (t.is_right){
+    if(t.x<t.max_x){
+    t.frameY = 0; // right row
+      t.x+=4;
+    }
+    else{
+      t.is_right=false;
+    }
+  }
+  else{
+    if (t.x>t.min_x) {
+    t.frameY = 1; // right row
+      t.x-=4;
+    }
+    else{
+      t.is_right=true;
+    }
+  }
+
+  t.frameTick++;
+  if (t.frameTick > 10) {
+      t.frameX = (t.frameX + 1) % FRAMES_PER_ROWTUR;
+      t.frameTick = 0;
+  }
+   });
+
+//turtle(killing)
+
+  if (turtles.x )
 //player trigger platform
 var d=platforms[5];
-  if (player.x>1040 && player.x<1140 && player.y>400 && player.y<580 && d.started_moving==false) {
+  if (player.x>1040 && player.x<1140  && player.y>400 && player.y<490 && d.started_moving==false) {
    console.log("trigger!")
     d.started_moving=true
   }
@@ -195,8 +278,21 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Player
-  ctx.fillStyle = "cyan";
-  ctx.fillRect(player.x, player.y, player.width, player.height);
+  //ctx.fillStyle = "cyan";
+  //ctx.fillRect(player.x, player.y, player.width, player.height);
+  ctx.drawImage(
+    sprite,
+    player.frameX * SPRITE_WIDTH,
+    player.frameY * SPRITE_HEIGHT,
+    SPRITE_WIDTH,
+    SPRITE_HEIGHT,
+    player.x,
+    player.y,
+    player.width,
+    player.height
+  );
+
+
 
   // Platforms
   ctx.fillStyle = "green";
@@ -213,6 +309,20 @@ function draw() {
       ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
       ctx.fill();
     }
+  });
+  //turtle
+  turtles.forEach(p => {
+    //ctx.fillRect(p.x, p.y, p.width, p.height);
+    ctx.drawImage( 
+      spriteTUR,
+    p.frameX * SPRITE_WIDTHTUR,
+    p.frameY * SPRITE_HEIGHTTUR,
+    SPRITE_WIDTHTUR,
+    SPRITE_HEIGHTTUR,
+    p.x,
+    p.y,
+    p.width,
+    p.height);
   });
 }
 
