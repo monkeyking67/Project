@@ -19,6 +19,9 @@ const coinText = document.getElementById("coinCount");
 const finishingflag_img = new Image(); // Create a new Image object
 finishingflag_img.src = "finishingflag.png"; // Start loading the image
 
+const kill_sound = new Audio("killsound.mp3")
+const coin_sound = new Audio("coincollecting.mp3")
+const jump_sound = new Audio("jump.mp3")
 
 let keys = {};
 let coinsCollected = 0;
@@ -117,12 +120,12 @@ function update() {
   let moving = false;
 
   // Movement
-  if (keys["ArrowLeft"]) {
+  if (keys["ArrowLeft"]||keys["a"]) {
     player.vx = -player.speed;
      player.frameY = 0; // left row
     moving = true;
   }
-  else if (keys["ArrowRight"]){
+  else if (keys["ArrowRight"]||keys["d"]){
     player.vx = player.speed;
      player.frameY = 1; // right row
     moving = true;
@@ -131,9 +134,10 @@ function update() {
     player.vx = 0;
   }
 
-  if (keys["ArrowUp"] && player.grounded) {
+  if (keys["ArrowUp"]||keys["w"] && player.grounded) {
     player.vy = -player.jump;
     player.grounded = false;
+    jump_sound.play();
   }
    if (moving) {
     player.frameTick++;
@@ -206,6 +210,7 @@ function update() {
         c.collected = true;
         coinsCollected++;
         coinText.textContent = coinsCollected;
+        coin_sound.play();
       }
     }
   });
@@ -267,6 +272,7 @@ function update() {
       //teleport
       player.x=82
       player.y=740
+      kill_sound.play();
     }
   });
 
