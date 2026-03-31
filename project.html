@@ -134,7 +134,7 @@ function update() {
     player.vx = 0;
   }
 
-  if ((keys["ArrowUp"]||keys["w"]) && player.grounded) {
+  if (keys["ArrowUp"]||keys["w"] && player.grounded) {
     player.vy = -player.jump;
     player.grounded = false;
     jump_sound.play();
