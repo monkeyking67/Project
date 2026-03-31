@@ -8,7 +8,7 @@
 
 <h2>Coins: <span id="coinCount">0</span> / 3</h2>
 <div id="POSITIONDISPLAY"></div>
-<canvas id="game" width="1890" height="850" style="border:solid 1px;"></canvas>
+<canvas id="game" width="1890" height="845" style="border:solid 1px;"></canvas>
 
 <script>
 const canvas = document.getElementById("game");
@@ -30,8 +30,8 @@ var teleport_used=false;
 
 //PLAYER
 const player = {
-  x: 300,
-  y: 100,
+  x: 1280,
+  y: 350,
   width: 35,
   height: 55,
   vx: 0,
@@ -45,8 +45,8 @@ const player = {
 };
 //turtle(enemy)
 const turtles = [
-  { x:888,  y:225, width: 100, height: 60, min_x:850, max_x:1870, is_right:true, frameX:0, frameY:0, frameTick:0},
-  { x:930,  y:540, width: 100, height: 60, min_x:910, max_x:1370, is_right:true, frameX:0, frameY:0, frameTick:0},
+  { x:888,  y:180, width: 100, height: 60, min_x:800, max_x:1870, is_right:true, frameX:0, frameY:0, frameTick:0},
+  { x:930,  y:550, width: 80, height: 50, min_x:866, max_x:1370, is_right:true, frameX:0, frameY:0, frameTick:0},
 ]
 
 
@@ -78,25 +78,24 @@ const platforms = [
   { x: 1100, y: 600 , width: 160, height: 20, moving_y:5, final_y:1000, started_moving:false, stopped_moving:false},
   { x: 1250, y: 600 , width: 150, height: 20},
   { x: 1570, y: 600 , width: 350, height: 20},
-  { x: 1580, y: 500 , width: 120, height: 20},//y=500 3rd line
-  { x: 1330, y: 450 , width: 120, height: 20},
-  { x: 1070, y: 450 , width: 130, height: 20},
-  { x: 850,  y: 450 , width: 120, height: 20},//y=450 4rd line
-  { x: 620,  y: 450 , width: 150, height: 20},
-  { x: 400,  y: 450 , width: 120, height: 20},
-  { x: 0,    y: 450 , width: 250, height: 20},//y=320 5th line
-  { x:150,   y: 330 , width: 120, height: 20},                                                                                                                
-  { x: 400 , y: 280 , width: 120, height: 20},
-  { x: 640 , y: 280 , width: 120, height: 20},
-  { x: 870 , y: 280 , width: 1000, height: 20},
-  { x: 1350 , y: 130 , width: 120, height: 20},
-  { x: 1600 , y: 170 , width: 120, height: 20},//y=230 6th line
-  { x: 1100 , y: 100 , width: 120, height: 20},//y=190 7th line
-  { x: 880 , y: 100 , width: 120, height: 20},
-  { x: 660 , y: 100 , width: 120, height: 20},
-  {x: 420, y: 100 , width: 120, height: 20},
-  {x: 190 , y: 100 , width: 120, height: 20},
-  {x: 0 , y: 100 , width: 120, height: 20},                          
+  { x: 1580, y: 450 , width: 120, height: 20},//y=500 3rd line
+  { x: 1300, y: 410 , width: 120, height: 20},
+  { x: 1050,  y: 410 , width: 120, height: 20},//y=450 4rd line
+  { x: 1000,  y: 410 , width: 150, height: 20},
+  { x: 400,  y: 410 , width: 120, height: 20},
+  { x: 0,    y: 410 , width: 250, height: 20},//y=320 5th line
+  { x:100,   y: 280 , width: 120, height: 20},                                                                                                                
+  { x: 370 , y: 240 , width: 120, height: 20},
+  { x: 640 , y: 240 , width: 120, height: 20},
+  { x: 870 , y: 240 , width: 1000, height: 20},
+  { x: 1350 , y: 70 , width: 120, height: 20},
+  { x: 1600 , y: 120 , width: 120, height: 20},//y=230 6th line
+  { x: 1100 , y: 70 , width: 120, height: 20},//y=190 7th line
+  { x: 880 , y: 70 , width: 120, height: 20},
+  { x: 660 , y: 70 , width: 120, height: 20},
+  {x: 420, y: 70 , width: 120, height: 20},
+  {x: 190 , y: 70 , width: 120, height: 20},
+  {x: 0 , y: 70 , width: 120, height: 20},                          
  { x: 150, y: 700, width: 120, height: 20 } //1istline  
 
 ];
@@ -227,6 +226,23 @@ function update() {
   else{
     if (platforms[1].x>0) {
       platforms[1].x-=4;
+    }
+    else{
+      right=true;
+    }
+  }
+
+  if (right){
+    if(platforms[12].x<900){
+      platforms[12].x+=4;
+    }
+    else{
+      right=false;
+    }
+  }
+  else{
+    if (platforms[12].x>100) {
+      platforms[12].x-=4;
     }
     else{
       right=true;
