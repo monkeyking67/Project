@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Basic Platformer</title>
+  <link rel="stylesheet" type="text/css" href="forstart.css">
+</head>
+<body>
+
+<h1>Coins: <span id="coinCount">0</span> / 3lv1</h1>
+<div id="POSITIONDISPLAY"></div>
+<canvas id="game" width="1890" height="845" style="border:solid 1px;"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const platform_img = new Image(); // Create a new Image object
+platform_img.src = "platform.png"; // Start loading the image
+const coinText = document.getElementById("coinCount");
+const finishingflag_img = new Image(); // Create a new Image object
+finishingflag_img.src = "finishingflag.png"; // Start loading the image
+
+const kill_sound = new Audio("killsound.mp3")
+const coin_sound = new Audio("coincollecting.mp3")
+const jump_sound = new Audio("jump.mp3")
+
+let keys = {};
+let coinsCollected = 0;
+var right=true; //platform 4
+var right12=true; //platform 4
+var teleport_used=false;
+
+var won=false;
+
+//PLAYER
+const player = {
+  x: 1280,
+  y: 100,
+  width: 35,
+  height: 55,
+  vx: 0,
+  vy: 0,
+  speed: 4,
+  jump: 10,
+  grounded: false,
+  frameX: 0,
+  frameY: 0,
+  frameTick: 0
+};
+//turtle(enemy)
+const turtles = [
+ 
+  { x:930,  y:550, width: 80, height: 50, min_x:866, max_x:1370, is_right:true, frameX:0, frameY:0, frameTick:0},
+]
+
+
+  const sprite = new Image();
+  sprite.src = "sprite.png";
+  const spriteTUR  = new Image();
+  spriteTUR.src = "turtle sprite.png";
+
+
+  // SPRITE SETTINGS
+  const SPRITE_WIDTH = 472;   // width of ONE frame
+  const SPRITE_HEIGHT = 650;  // height of ONE frame
+  const FRAMES_PER_ROW = 6;
+
+  const SPRITE_WIDTHTUR = 525;   // width of ONE frame
+  const SPRITE_HEIGHTTUR = 375;  // height of ONE frame
+  const FRAMES_PER_ROWTUR = 2;
+
+
+
+
+//PLATFORMS
+const platforms = [
+  { x: -100, y: 810, width: 2000, height: 10 },//Bottom platform
+  { x: 300, y: 600 , width: 120, height: 20},//2nd line
+  { x: 500, y: 600 , width: 100, height: 20},
+  { x: 700, y: 600 , width: 100, height: 20},
+  { x: 900, y: 600 , width: 200, height: 20},
+  { x: 1100, y: 600 , width: 160, height: 20, moving_y:5, final_y:1000, started_moving:false, stopped_moving:false},
+  { x: 1250, y: 600 , width: 150, height: 20},
+  { x: 1570, y: 600 , width: 350, height: 20},                         
+ { x: 150, y: 700, width: 120, height: 20 } //1istline  
+
+];
+
+//COINS
+const coins = [
+  { x: 200, y: 650, r: 8, collected: false },
+  { x: 350, y: 550, r: 8, collected: false },
+  { x: 1300, y: 550, r: 8, collected: false }
+];
+//Flag
+const finish_flag = { x: 1750, y: 550, width: 100, height: 60 };
+const gravity = 0.5;
+
+//INPUT
+document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keyup", e => keys[e.key] = false);
+
+//GAME LOOP
+function update() {
+  let moving = false;
+
+  // Movement
+  if (keys["ArrowLeft"]||keys["a"]) {
+    player.vx = -player.speed;
+     player.frameY = 0; // left row
+    moving = true;
+  }
+  else if (keys["ArrowRight"]||keys["d"]){
+    player.vx = player.speed;
+     player.frameY = 1; // right row
+    moving = true;
+  }
+  else {
+    player.vx = 0;
+  }
+
+  if ((keys["ArrowUp"]||keys["w"]) && player.grounded) {
+    player.vy = -player.jump;
+    player.grounded = false;
+    jump_sound.play();
+  }
+   if (moving) {
+    player.frameTick++;
+    if (player.frameTick > 10) {
+      player.frameX = (player.frameX + 1) % FRAMES_PER_ROW;
+      player.frameTick = 0;
+    }
+  } else {
+    player.frameX = 0; // idle frame
+  }
+ 
+
+
+  //Display position:
+  document.getElementById("POSITIONDISPLAY").innerHTML="x: "+player.x+" ; y: "+player.y;
+
+
+
+  // Gravity
+  player.vy += gravity;
+
+  // Apply movement
+  player.x += player.vx;
+  player.y += player.vy;
+
+  player.grounded = false;
+   
+  // Platform collision
+  platforms.forEach(p => {
+    if (
+      player.x < p.x + p.width &&
+      player.x + player.width > p.x &&
+      player.y < p.y + p.height &&
+      player.y + player.height > p.y
+    ) {
+      // Land on top
+      if (player.vy > 0) {
+        player.y = p.y - player.height;
+        player.vy = 0;
+        player.grounded = true;
+      }
+    }
+  });
+  
+  // Platform collision from below
+  platforms.forEach(p => {
+    if (
+      player.x < p.x + p.width &&
+      player.x + player.width > p.x &&
+      Math.abs(player.y - (p.y + p.height))<6
+    ) {
+      // touch bottom
+      console.log("hii");
+      if (1==1) {
+        player.y = p.y + p.height+6;
+        player.vy = 0;
+        player.grounded = false;
+      }
+    }
+  });
+
+
+  // Coin collision
+  coins.forEach(c => {
+    if (!c.collected) {
+      const dx = player.x + player.width / 2 - c.x;
+      const dy = player.y + player.height / 2 - c.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < c.r + 15) {
+        c.collected = true;
+        coinsCollected++;
+        coinText.textContent = coinsCollected;
+        coin_sound.play();
+      }
+    }
+  });
+  //platform movement
+  
+  if (right){
+    if(platforms[1].x<300){
+      platforms[1].x+=4;
+    }
+    else{
+      right=false;
+    }
+  }
+  else{
+    if (platforms[1].x>0) {
+      platforms[1].x-=4;
+    }
+    else{
+      right=true;
+    }
+  }
+  //tutle movement
+   turtles.forEach(t => {
+
+  if (t.is_right){
+    if(t.x<t.max_x){
+    t.frameY = 0; // right row
+      t.x+=4;
+    }
+    else{
+      t.is_right=false;
+    }
+  }
+  else{
+    if (t.x>t.min_x) {
+    t.frameY = 1; // right row
+      t.x-=4;
+    }
+    else{
+      t.is_right=true;
+    }
+  }
+
+  t.frameTick++;
+  if (t.frameTick > 10) {
+      t.frameX = (t.frameX + 1) % FRAMES_PER_ROWTUR;
+      t.frameTick = 0;
+  }
+   });
+
+  // turltlecollision
+  turtles.forEach(t => {
+    if (
+      player.x < t.x + t.width &&
+      player.x + player.width > t.x &&
+      player.y < t.y + t.height &&
+      player.y + player.height > t.y
+    ) {
+      //teleport
+      player.x=82
+      player.y=740
+      kill_sound.play();
+    }
+  });
+  //finish flag
+  if (
+      player.x < finish_flag.x + finish_flag.width &&
+      player.x + player.width > finish_flag.x &&
+      player.y < finish_flag.y + finish_flag.height &&
+      player.y + player.height > finish_flag.y &&
+      won==false
+    ) {
+    won=true;
+      //teleport
+alert("YOU WIN");
+window.open("projectnew.html")
+    }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Player
+  //ctx.fillStyle = "cyan";
+  //ctx.fillRect(player.x, player.y, player.width, player.height);
+  ctx.drawImage(
+    sprite,
+    player.frameX * SPRITE_WIDTH,
+    player.frameY * SPRITE_HEIGHT,
+    SPRITE_WIDTH,
+    SPRITE_HEIGHT,
+    player.x,
+    player.y,
+    player.width,
+    player.height
+  );
+
+
+
+  // Platforms
+  ctx.fillStyle = "green";
+  platforms.forEach(p => {
+    //ctx.fillRect(p.x, p.y, p.width, p.height);
+    ctx.drawImage(platform_img,p.x, p.y, p.width, p.height);
+  });
+
+  //finishing flag
+   ctx.drawImage(finishingflag_img,finish_flag.x, finish_flag.y, finish_flag.width, finish_flag.height);
+
+
+
+  
+
+  // Coins
+  ctx.fillStyle = "gold";
+  coins.forEach(c => {
+    if (!c.collected) {
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+  //turtle
+  turtles.forEach(p => {
+    //ctx.fillRect(p.x, p.y, p.width, p.height);
+    ctx.drawImage( 
+      spriteTUR,
+    p.frameX * SPRITE_WIDTHTUR,
+    p.frameY * SPRITE_HEIGHTTUR,
+    SPRITE_WIDTHTUR,
+    SPRITE_HEIGHTTUR,
+    p.x,
+    p.y,
+    p.width,
+    p.height);
+  });
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+
+draw()//to delete
+</script>
+
+</body>
+</html>
