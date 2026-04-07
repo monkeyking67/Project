@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>GAY TEST</title>
+  <title>normal ahh game</title>
   <link rel="stylesheet" type="text/css" href="forstart.css">
 </head>
 <body>
   <audio autoplay loop>
     <source src="i-like-you-by-sakura-girl.mp3" type="audio/mpeg">y  
   </audio>
-<h2>Coins: <span id="coinCount">0</span> / 3_GAY TEST_lv2</h2>
+<h2>Coins: <span id="coinCount">0</span> / 3 | TIMER: <span id="display_timer" >0</span></h2>
+
 <div id="POSITIONDISPLAY"></div>
 <canvas id="game" width="1890" height="845" style="border:solid 1px;"></canvas>
 
@@ -26,6 +27,14 @@ const coin_sound = new Audio("coincollecting.mp3")
 const jump_sound = new Audio("jump.mp3")
 //const background_sound = new Audio("i-like-you-by-sakura-girl.mp3")
 
+let count = 0;
+const display = document.getElementById("display_timer");
+
+const intervalId = setInterval(function milliseconds() {
+  count++;
+  display.innerText = count;
+}, 1000);
+
 
 
 let keys = {};
@@ -36,8 +45,8 @@ var teleport_used=false;
 
 //PLAYER
 const player = {
-  x: 82,
-  y: 755,
+  x: 246,
+  y: 10,
   width: 35,
   height: 55,
   vx: 0,
@@ -51,7 +60,7 @@ const player = {
 };
 //turtle(enemy)
 const turtles = [
-  { x:888,  y:180, width: 80, height: 50, min_x:800, max_x:1870, is_right:true, frameX:0, frameY:0, frameTick:0},
+  { x:888,  y:200, width: 70, height: 40, min_x:800, max_x:1870, is_right:true, frameX:0, frameY:0, frameTick:0},
   { x:930,  y:550, width: 80, height: 50, min_x:866, max_x:1370, is_right:true, frameX:0, frameY:0, frameTick:0},
 ]
 
@@ -328,7 +337,7 @@ var d=platforms[5];
     ) {
       //teleport
 alert("YOU WIN")
-    }
+   }
 }
 
 function draw() {
