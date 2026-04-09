@@ -1,0 +1,17 @@
+#menu{margin: auto;text-align: center;}
+body{background: url("IMG_5483.PNG");background-repeat: no-repeat;background-size: cover; }
+#myImage{
+	position: absolute;
+	top: 330px;
+	left: 700px;
+}
+#Image123{
+	position: absolute;
+	top: 50px;
+	left: 450px;
+}
+#sun{
+	position: absolute;
+	top: 250px;
+	left: 740px;
+}
