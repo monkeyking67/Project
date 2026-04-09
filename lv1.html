@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>GAY TEST</title>
+  <title>Basic Platformer</title>
   <link rel="stylesheet" type="text/css" href="forstart.css">
 </head>
 <body>
 <audio></audio>
-<h1>Coins: <span id="coinCount">0</span> / 3_GAY TEST_lv1</h1>
+<h2>Coins: <span id="coinCount">0</span> / 3 | TIMER: <span id="display_timer" >0</span></h2>
 <div id="POSITIONDISPLAY"></div>
 <canvas id="game" width="1890" height="845" style="border:solid 1px;"></canvas>
 
@@ -22,7 +22,14 @@ finishingflag_img.src = "finishingflag.png"; // Start loading the image
 const kill_sound = new Audio("killsound.mp3")
 const coin_sound = new Audio("coincollecting.mp3")
 const jump_sound = new Audio("jump.mp3")
-const background_sound = new Audio("i-like-you-by-sakura-girl.mp3")
+
+let count = 0;
+const display = document.getElementById("display_timer");
+
+const intervalId = setInterval(function milliseconds() {
+  count++;
+  display.innerText = count;
+}, 1000);
 
 let keys = {};
 let coinsCollected = 0;
@@ -34,8 +41,8 @@ var won=false;
 
 //PLAYER
 const player = {
-  x: 82,
-  y: 755,
+  x: 1280,
+  y: 100,
   width: 35,
   height: 55,
   vx: 0,
@@ -109,13 +116,11 @@ function update() {
     player.vx = -player.speed;
      player.frameY = 0; // left row
     moving = true;
-    background_sound.play();
   }
   else if (keys["ArrowRight"]||keys["d"]){
     player.vx = player.speed;
      player.frameY = 1; // right row
     moving = true;
-    background_sound.play();
   }
   else {
     player.vx = 0;
@@ -125,7 +130,6 @@ function update() {
     player.vy = -player.jump;
     player.grounded = false;
     jump_sound.play();
-     background_sound.play();
   }
    if (moving) {
     player.frameTick++;
@@ -274,7 +278,7 @@ function update() {
     won=true;
       //teleport
 alert("YOU WIN");
-window.open("project.html")
+window.open("projectnew.html")
     }
 }
 
