@@ -22,6 +22,7 @@ finishingflag_img.src = "finishingflag.png"; // Start loading the image
 const kill_sound = new Audio("killsound.mp3")
 const coin_sound = new Audio("coincollecting.mp3")
 const jump_sound = new Audio("jump.mp3")
+const background_sound = new Audio("i-like-you-by-sakura-girl.mp3")
 
 let count = 0;
 const display = document.getElementById("display_timer");
@@ -116,11 +117,13 @@ function update() {
     player.vx = -player.speed;
      player.frameY = 0; // left row
     moving = true;
+    background_sound.play();
   }
   else if (keys["ArrowRight"]||keys["d"]){
     player.vx = player.speed;
      player.frameY = 1; // right row
     moving = true;
+    background_sound.play();
   }
   else {
     player.vx = 0;
@@ -130,6 +133,7 @@ function update() {
     player.vy = -player.jump;
     player.grounded = false;
     jump_sound.play();
+    background_sound.play();
   }
    if (moving) {
     player.frameTick++;
